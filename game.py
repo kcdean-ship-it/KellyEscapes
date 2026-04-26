@@ -88,3 +88,21 @@ bed.items = [lamp, jewelry_box]
 # create player
 player = Player("The Player", entry)
 
+# clues
+# key
+jewelry_box.contains = "office_key"
+
+# numbers for final code
+plant_left.contains = "green 3"
+painting.contains = "red 9"
+candle_2.contains = "orange 1"
+bathmat.contains = "blue 8"
+
+# order of numbers clue
+safe.contains = "order clue"
+
+# game play
+print("Welcome to Kelly's Escape Game!")
+print("\nYour friend Kelly wants to see how smart you are so she locked you inside her house to see if you could escape.")
+print("\nYou are in the entry room of the house and need a 4 digit code to unlock the front door.")
+
