@@ -137,8 +137,7 @@ def move(direction):
             print("The front door is locked. You need to enter the code.")
             return
         else:
-            print("You step outside and escape!")
-            exit()
+            end_game()
     
     player.location = next_room
 
@@ -205,6 +204,11 @@ def unlock_front_door():
     else:
         print("That’s not the right code.")
         
+def end_game():
+    print("\nCongratulations! You escaped the house!")
+    print("Kelly is impressed and wants to be your friend!")
+    print("\nThanks for playing! And maybe think twice the next time a stranger wants to be your friend!")
+    exit()
 
 # game loop (calling functions)
 last_room = None
