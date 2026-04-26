@@ -149,3 +149,17 @@ def search_item(item):
             player.notes.append(item.contains)
     else:
         print("Nothing interesting here.")
+
+def open_safe():
+    if player.safe_opened:
+        print("The safe is already open.")
+        return
+    
+    code = input("Enter 4-digit code: ")
+    
+    if code == "4103":
+        print("The safe clicks open!")
+        player.safe_opened = True
+        search_item(safe)
+    else:
+        print("Wrong code.")
