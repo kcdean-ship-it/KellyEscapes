@@ -21,6 +21,7 @@ class Player:
         self.location = location
         self.inventory = []
         self.notes = []
+        self.front_door_unlocked = False
         self.office_unlocked = False
         self.safe_opened = False
 
@@ -32,11 +33,12 @@ office = Room("Home Office", "You've unlocked the office! In front of you is a d
 dining = Room("Dining Room", "You've entered the dining room. In the middle of the room is a dining table. There is a vase with flowers and two candles flanking it in the middle of the table. There are four doors, one in each direction.")
 bath = Room("Bathroom", "You are in the bathroom. In the bath tub is a yellow rubber duck, and on the floor is a bathmat. On the sink is a toothbrush holder and a bar of soap. The door you walked through is on the north wall of the bathroom.")
 bed = Room("Bedroom", "Welcome to the bedroom! There is a big king bed against the south wall of the room and on either side of the bed is a nightstand. On the left nightstand is a lamp, and on the right nightstand is a jewelry box. The bedroom door is on the west wall of the room.")
+outside = Room("Outside", "You step outside and breath in the fresh air.")
 
 # create items
 # entry items
-plant_left = Item("plant", "This plant looks small and lightweight.", True)
-plant_right = Item("plant", "This plant is big and looks very heavy.", False)
+plant_left = Item("left plant", "This plant looks small and lightweight.", True)
+plant_right = Item("right plant", "This plant is big and looks very heavy.", False)
 
 # living room items
 pillow = Item("pillow", "The pillow is in the middle of the couch. It appears to be more decorative than practical.", True)
@@ -53,8 +55,8 @@ book = Item("book", "The book is the Bible.", True)
 safe = Item("safe", "The safe is locked and needs a 4 digit code, perhaps a birthday?", False)
 
 # dining room items
-candle_1 = Item("candle", "This candle is old and almost all used up.", True)
-candle_2 = Item("candle", "This candle has never been used and looks as though it is brand new.", True)
+candle_1 = Item("old candle", "This candle is old and almost all used up.", True)
+candle_2 = Item("new candle", "This candle has never been used and looks as though it is brand new.", True)
 vase = Item("vase", "The vase has a beautiful bouquet of roses in it and there is a lot of water in the base of the vase.", False)
 
 # bathroom items
@@ -77,6 +79,7 @@ bath.exits = {"north": dining}
 bed.exits = {"west": dining}
 
 entry.exits["east"] = office # locked
+entry.exits["north"] = outside # locked
 
 # connect rooms and items
 entry.items = [plant_left, plant_right]
@@ -92,7 +95,7 @@ player = Player("The Player", entry)
 
 # clues
 # key
-jewelry_box.contains = "office_key"
+jewelry_box.contains = "office key"
 
 # numbers for final code
 plant_left.contains = "green 3"
@@ -120,16 +123,41 @@ def move(direction):
     
     # Locked office
     if next_room == office and not player.office_unlocked:
-        if "office_key" in player.inventory:
-            print("You unlock the office door.")
+        if "office key" in player.inventory:
             player.office_unlocked = True
         else:
             print("The office door is locked.")
             return
     
+    # Locked front door
+    if current == entry and direction == "north":
+        if not player.front_door_unlocked:
+            print("The front door is locked. You need to enter the code.")
+            unlock_front_door()
+        else:
+            print("You step outside and escape!")
+            exit()
+    
     player.location = next_room
 
+def show_room_info():
+    room = player.location
+    
+    print("\nYou can go:", ", ".join(room.exits.keys()))
+    
+    if room.items:
+        print("You see:", ", ".join([item.name for item in room.items]))
+    
+    print("Commands: go [direction], look [item], search [item], inventory, notes")
+
+def lookat_item(item):
+    print(item.description)
+
 def search_item(item):
+    if item.name == "safe" and not player.safe_opened:
+        print("The safe is locked.")
+        return
+    
     if item.searched:
         print("You already checked here.")
         return
@@ -137,9 +165,9 @@ def search_item(item):
     item.searched = True
     
     if item.contains:
-        if item.contains == "office_key":
+        if item.contains == "office key":
             print("You found a key!")
-            player.inventory.append("office_key")
+            player.inventory.append("office key")
         
         elif item.contains == "order clue":
             print("The paper says: blue, green, red, orange.")
@@ -169,22 +197,34 @@ def unlock_front_door():
     code = input("Enter the 4-digit code: ")
     
     if code == "8391":
-        print("Congratulations! You unlocked the door and escaped!")
-        exit()
+        print("Congratulations, you unlocked the door!")
+        player.front_door_unlocked = True
     else:
         print("That’s not the right code.")
+        return
 
 # game loop (calling functions)
 while True:
     room = player.location
     print("\n" + room.name)
     print(room.description)
+    show_room_info()
     
     command = input("> ").lower()
     
     if command.startswith("go "):
         move(command.split()[1])
     
+    elif command.startswith("look at "):
+        name = command[5:]
+        found = False
+        for item in room.items:
+            lookat_item(item)
+            found = True
+            break
+        if not found:
+            print("That item isn't here.")
+
     elif command.startswith("search "):
         name = command[7:]
         found = False
