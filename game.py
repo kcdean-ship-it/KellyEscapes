@@ -26,7 +26,7 @@ class Player:
         self.safe_opened = False
 
 # create rooms
-entry = Room("Entry", "You are in the front entry of the house. To the north is the locked front door, and there are three doors leading off the entry: one to the west, one to the south, and one to the east. On either side of the door leading south, there is a potted plant.")
+entry = Room("Entry", "You are in the front entry of the house. To the north is the locked front door, and there are three doors leading off the entry: one to the west, one to the south, and one to the east. On either side of the door leading south, there is a potted plant (left plant and right plant).")
 living = Room("Living Room", "You are now in the living room. There is a big pillow on the couch, a mug on the coffee table, and a painting hanging on the wall. There are two doors: one to the south and one to the east.")
 kitchen = Room("Kitchen", "Welcome to the Kitchen! It's a bit messy in here! There's a dirty pot in the sink, a used napkin on the counter, and a note on the fridge. To the north is a door and to the east is another door.")
 office = Room("Home Office", "You've unlocked the office! In front of you is a desk with a book on it, and behind that desk is a bookshelf that looks like it contains a safe. The door leading out of the office and back to the entry in on the west wall.")
@@ -111,7 +111,6 @@ safe.contains = "order clue"
 
 # game into
 print("Welcome to Kelly's Escape Game!")
-print("\nYour friend Kelly wants to see how smart you are so she locked you inside her house to see if you could escape.")
 print("\nYou are in the entry room of the house and need a 4 digit code to unlock the front door.")
 
 # functions
@@ -129,15 +128,17 @@ def move(direction):
         if "office key" in player.inventory:
             player.office_unlocked = True
         else:
-            print("The office door is locked.")
+            print("The office door is locked. You need a key to get in.")
             return
     
     # Locked front door
-    if next_room == outside and not player.front_door_unlocked:
-        print("The front door is locked. You need to enter the code.")
-    else:
-        print("You step outside and escape!")
-        exit()
+    if next_room == outside:
+        if not player.front_door_unlocked:
+            print("The front door is locked. You need to enter the code.")
+            return
+        else:
+            print("You step outside and escape!")
+            exit()
     
     player.location = next_room
 
@@ -206,10 +207,15 @@ def unlock_front_door():
         
 
 # game loop (calling functions)
+last_room = None
+
 while True:
     room = player.location
-    print("\n" + room.name)
-    print(room.description)
+    
+    if room != last_room:
+        print("\n" + room.name)
+        print(room.description)
+    
     show_room_info()
     
     command = input("> ").lower()
@@ -246,4 +252,5 @@ while True:
         else:
             print("There is no door here.")
 
+    last_room = room
 
