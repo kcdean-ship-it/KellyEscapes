@@ -21,6 +21,8 @@ class Player:
         self.location = location
         self.inventory = []
         self.notes = []
+        self.office_unlocked = False
+        self.safe_opened = False
 
 # create rooms
 entry = Room("Entry", "You are in the front entry of the house. To the north is the locked front door, and there are three doors leading off the entry: one to the west, one to the south, and one to the east. On either side of the door leading south, there is a potted plant.")
@@ -66,7 +68,7 @@ lamp = Item("Lamp", "The lamp is fancy and looks expesive, and it appears to be 
 jewelry_box = Item("Jewelry box", "The jewelry box is small and wooden. I wonder if there is something inside?", True)
 
 # create exits
-entry.exits = {"north": pass, "west": living, "south": dining}
+entry.exits = {"west": living, "south": dining}
 living.exits = {"south": kitchen, "east": entry}
 kitchen.exits = {"north": living, "east": dining}
 office.exits = {"west": entry}
@@ -106,3 +108,44 @@ print("Welcome to Kelly's Escape Game!")
 print("\nYour friend Kelly wants to see how smart you are so she locked you inside her house to see if you could escape.")
 print("\nYou are in the entry room of the house and need a 4 digit code to unlock the front door.")
 
+def move(direction):
+    current = player.location
+    
+    if direction not in current.exits:
+        print("You can't go that way.")
+        return
+    
+    next_room = current.exits[direction]
+    
+    # Locked office
+    if next_room == office and not player.office_unlocked:
+        if "office_key" in player.inventory:
+            print("You unlock the office door.")
+            player.office_unlocked = True
+        else:
+            print("The office door is locked.")
+            return
+    
+    player.location = next_room
+
+def search_item(item):
+    if item.searched:
+        print("You already checked here.")
+        return
+    
+    item.searched = True
+    
+    if item.contains:
+        if item.contains == "office_key":
+            print("You found a key!")
+            player.inventory.append("office_key")
+        
+        elif item.contains == "order clue":
+            print("The paper says: blue, green, red, orange.")
+            player.notes.append("order: blue, green, red, orange")
+        
+        else:
+            print(f"You found a clue: {item.contains}")
+            player.notes.append(item.contains)
+    else:
+        print("Nothing interesting here.")
