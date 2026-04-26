@@ -30,7 +30,7 @@ entry = Room("Entry", "You are in the front entry of the house. To the north is 
 living = Room("Living Room", "You are now in the living room. There is a big pillow on the couch, a mug on the coffee table, and a painting hanging on the wall. There are two doors: one to the south and one to the east.")
 kitchen = Room("Kitchen", "Welcome to the Kitchen! It's a bit messy in here! There's a dirty pot in the sink, a used napkin on the counter, and a note on the fridge. To the north is a door and to the east is another door.")
 office = Room("Home Office", "You've unlocked the office! In front of you is a desk with a book on it, and behind that desk is a bookshelf that looks like it contains a safe. The door leading out of the office and back to the entry in on the west wall.")
-dining = Room("Dining Room", "You've entered the dining room. In the middle of the room is a dining table. There is a vase with flowers and two candles flanking it in the middle of the table. There are four doors, one in each direction.")
+dining = Room("Dining Room", "You've entered the dining room. In the middle of the room is a dining table. There is a vase with flowers and two candles flanking it in the middle of the table. One candle is old and used, the other is brand new. There are four doors, one in each direction.")
 bath = Room("Bathroom", "You are in the bathroom. In the bath tub is a yellow rubber duck, and on the floor is a bathmat. On the sink is a toothbrush holder and a bar of soap. The door you walked through is on the north wall of the bathroom.")
 bed = Room("Bedroom", "Welcome to the bedroom! There is a big king bed against the south wall of the room and on either side of the bed is a nightstand. On the left nightstand is a lamp, and on the right nightstand is a jewelry box. The bedroom door is on the west wall of the room.")
 outside = Room("Outside", "You step outside and breath in the fresh air.")
@@ -103,6 +103,9 @@ painting.contains = "red 9"
 candle_2.contains = "orange 1"
 bathmat.contains = "blue 8"
 
+# note content
+note.contains = "safe code"
+
 # order of numbers clue
 safe.contains = "order clue"
 
@@ -130,13 +133,11 @@ def move(direction):
             return
     
     # Locked front door
-    if current == entry and direction == "north":
-        if not player.front_door_unlocked:
-            print("The front door is locked. You need to enter the code.")
-            unlock_front_door()
-        else:
-            print("You step outside and escape!")
-            exit()
+    if next_room == outside and not player.front_door_unlocked:
+        print("The front door is locked. You need to enter the code.")
+    else:
+        print("You step outside and escape!")
+        exit()
     
     player.location = next_room
 
@@ -148,10 +149,7 @@ def show_room_info():
     if room.items:
         print("You see:", ", ".join([item.name for item in room.items]))
     
-    print("Commands: go [direction], look [item], search [item], inventory, notes")
-
-def lookat_item(item):
-    print(item.description)
+    print("Commands: go [direction], search [item], inventory, notes, open safe, unlock door (for front door only)")
 
 def search_item(item):
     if item.name == "safe" and not player.safe_opened:
@@ -173,6 +171,10 @@ def search_item(item):
             print("The paper says: blue, green, red, orange.")
             player.notes.append("order: blue, green, red, orange")
         
+        elif item.contains == "safe code":
+            print("The note says 'Birthday: 4/1/03'.")
+            player.notes.append("birthday: 4/1/03")
+
         else:
             print(f"You found a clue: {item.contains}")
             player.notes.append(item.contains)
@@ -201,7 +203,7 @@ def unlock_front_door():
         player.front_door_unlocked = True
     else:
         print("That’s not the right code.")
-        return
+        
 
 # game loop (calling functions)
 while True:
@@ -214,16 +216,6 @@ while True:
     
     if command.startswith("go "):
         move(command.split()[1])
-    
-    elif command.startswith("look at "):
-        name = command[5:]
-        found = False
-        for item in room.items:
-            lookat_item(item)
-            found = True
-            break
-        if not found:
-            print("That item isn't here.")
 
     elif command.startswith("search "):
         name = command[7:]
