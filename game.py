@@ -103,11 +103,12 @@ bathmat.contains = "blue 8"
 # order of numbers clue
 safe.contains = "order clue"
 
-# game play
+# game into
 print("Welcome to Kelly's Escape Game!")
 print("\nYour friend Kelly wants to see how smart you are so she locked you inside her house to see if you could escape.")
 print("\nYou are in the entry room of the house and need a 4 digit code to unlock the front door.")
 
+# functions
 def move(direction):
     current = player.location
     
@@ -172,5 +173,45 @@ def unlock_front_door():
         exit()
     else:
         print("That’s not the right code.")
+
+# game loop (calling functions)
+while True:
+    room = player.location
+    print("\n" + room.name)
+    print(room.description)
+    
+    command = input("> ").lower()
+    
+    if command.startswith("go "):
+        move(command.split()[1])
+    
+    elif command.startswith("search "):
+        name = command[7:]
+        found = False
+        for item in room.items:
+            if item.name.lower() == name:
+                search_item(item)
+                found = True
+                break
+        if not found:
+            print("That item isn't here.")
+    
+    elif command == "inventory":
+        print(player.inventory)
+    
+    elif command == "notes":
+        print(player.notes)
+    
+    elif command == "open safe":
+        if room == office:
+            open_safe()
+        else:
+            print("There is no safe here.")
+    
+    elif command == "unlock door":
+        if room == entry:
+            unlock_front_door()
+        else:
+            print("There is no door here.")
 
 
